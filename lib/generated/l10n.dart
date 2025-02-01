@@ -1740,6 +1740,7 @@ class S {
     );
   }
 
+
   /// `Action`
   String get action {
     return Intl.message(
@@ -2880,6 +2881,15 @@ class S {
     );
   }
 
+
+  String get hoverTable {
+    return Intl.message(
+      'Hover Table',
+      name: 'hoverTable',
+      desc: '',
+      args: [],
+    );
+  }
   /// `Tables Border Colors`
   String get tablesBorderColors {
     return Intl.message(
@@ -2905,6 +2915,17 @@ class S {
     return Intl.message(
       'Name',
       name: 'name',
+      desc: '',
+      args: [],
+    );
+  }
+
+
+
+  String get img {
+    return Intl.message(
+      'Image',
+      name: 'img',
       desc: '',
       args: [],
     );
@@ -3440,14 +3461,32 @@ class S {
     );
   }
 
-  String get addProduct {
+  String get addProductHomePage {
     return Intl.message(
-      'Add Product',
+      'Add Product Home Page',
       name: 'addProduct',
       desc: '',
       args: [],
     );
   }
+
+  String get addProductDetails{
+    return Intl.message(
+      'Add Product Details',
+      name: 'addProductDetails',
+      desc: '',
+      args: [],
+    );
+  }
+  String get addBanner{
+    return Intl.message(
+      'Add Banner',
+      name: 'addBanner',
+      desc: '',
+      args: [],
+    );
+  }
+
   String get editProduct {
     return Intl.message(
       'Edit Product',
@@ -6450,10 +6489,37 @@ class S {
   }
 
   /// `Basic Table`
-  String get addedTable {
+  String get jewelleryBanner {
     return Intl.message(
-      'Added Product',
-      name: 'addedTable',
+      'Jewellery Banner',
+      name: 'jewelleryBanner',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get editProductDetails {
+    return Intl.message(
+      'Edit Product Details',
+      name: 'editProductDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get jewelleryHomePage {
+    return Intl.message(
+      'Jewellery Home Page',
+      name: 'jewelleryHomePage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get jewelleryDetails {
+    return Intl.message(
+      'Jewellery Details',
+      name: 'jewelleryDetails',
       desc: '',
       args: [],
     );
@@ -9721,6 +9787,15 @@ class S {
     return Intl.message(
       'Price',
       name: 'price',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get size {
+    return Intl.message(
+      'Specification',
+      name: 'size',
       desc: '',
       args: [],
     );

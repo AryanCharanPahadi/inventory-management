@@ -1,13 +1,15 @@
 // 📦 Package imports:
-import 'package:acnoo_flutter_admin_panel/app/pages/add_product/add_product.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/add_banner/add_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 // 🌎 Project imports:
-import '../pages/add_product/edit_product.dart';
+import '../pages/add_product/add_product_hom_page.dart';
+import '../pages/add_product_detail/add_product_detail_ui_page.dart';
+import '../pages/edit_product_details/edit_product_details_ui.dart';
 import '../pages/pages.dart';
-import '../pages/show_added_product/AddedPrduct.dart';
+import '../pages/tables_page/jewellery_details_table.dart';
 import '../providers/providers.dart';
 
 abstract class AcnooAppRoutes {
@@ -152,17 +154,22 @@ abstract class AcnooAppRoutes {
           GoRoute(
             path: '/addProduct',
             pageBuilder: (context, state) => const NoTransitionPage<void>(
-              child: AddProductForm(),
+              child: AddProductHomPage(),
             ),
           ),
 
-          // GoRoute(
-          //   path: '/editProduct',
-          //   pageBuilder: (context, state) => const NoTransitionPage<void>(
-          //     child: EditProductForm(),
-          //   ),
-          // ),
-
+          GoRoute(
+            path: '/addProductDetails',
+            pageBuilder: (context, state) => const NoTransitionPage<void>(
+              child: AddProductDetailUiPage(),
+            ),
+          ),
+          GoRoute(
+            path: '/addBanner',
+            pageBuilder: (context, state) => const NoTransitionPage<void>(
+              child: AddBanner(),
+            ),
+          ),
 
           // Email Shell Routes
           GoRoute(
@@ -443,24 +450,33 @@ abstract class AcnooAppRoutes {
             },
             routes: [
               GoRoute(
-                path: 'added-product',
+                path: 'jewellery-banner',
                 pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: BasicTableView(),
+                  child: JewelleryBannerTable(),
                 ),
               ),
-
-
-
-
-
-
-
-
               GoRoute(
-                path: 'data-table',
+                path: 'jewellery-homepage',
                 pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: DataTableView(),
+                  child: JewelleryHomePageTable(),
                 ),
+              ),
+              GoRoute(
+                path: 'jewellery-details',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: JewelleryDetailsTable(),
+                ),
+              ),
+              // Add the new route for editing product details
+              GoRoute(
+                path: 'edit-product-details',
+                pageBuilder: (context, state) {
+                  // Extract the product details from the state
+                  final productDetail = state.extra as UserProductDetail?;
+                  return NoTransitionPage<void>(
+                    child: EditProductDetailsUi(productDetail: productDetail),
+                  );
+                },
               ),
             ],
           ),

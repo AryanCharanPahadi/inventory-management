@@ -139,15 +139,27 @@ List<GroupedMenuModel> get _groupedMenus {
         // ),
         SidebarItemModel(
           // name: 'Add Product ',
-          name: l.S.current.addProduct,
+          name: l.S.current.addProductHomePage,
           iconPath: 'assets/images/sidebar_icons/cart.svg',
           navigationPath: '/addProduct',
+        ),
+        SidebarItemModel(
+          // name: 'Add Product ',
+          name: l.S.current.addProductDetails,
+          iconPath: 'assets/images/sidebar_icons/cart.svg',
+          navigationPath: '/addProductDetails',
+        ),
+        SidebarItemModel(
+          // name: 'Add Product ',
+          name: l.S.current.addBanner,
+          iconPath: 'assets/images/sidebar_icons/cart.svg',
+          navigationPath: '/addBanner',
         ),
         // SidebarItemModel(
         //   // name: 'Add Product ',
         //   name: l.S.current.editProduct,
         //   iconPath: 'assets/images/sidebar_icons/cart.svg',
-        //   navigationPath: '/editProduct',
+        //   navigationPath: '/editProduct/:id/:title/:name/:price/:size/:desc',
         // ),
         // SidebarItemModel(
         //   //name: 'Chat',
@@ -311,8 +323,18 @@ List<GroupedMenuModel> get _groupedMenus {
           submenus: [
             SidebarSubmenuModel(
               //name: "Basic Table",
-              name: l.S.current.addedProduct,
-              navigationPath: "added-product",
+              name: l.S.current.jewelleryBanner,
+              navigationPath: "jewellery-banner",
+            ),
+            SidebarSubmenuModel(
+              //name: "Basic Table",
+              name: l.S.current.jewelleryHomePage,
+              navigationPath: "jewellery-homepage",
+            ),
+            SidebarSubmenuModel(
+              //name: "Basic Table",
+              name: l.S.current.jewelleryDetails,
+              navigationPath: "jewellery-details",
             ),
 
             // SidebarSubmenuModel(

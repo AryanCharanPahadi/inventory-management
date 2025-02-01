@@ -93,16 +93,25 @@ Map<String, RouteBreadcrumbModel> get routerParam {
     ),
     '/addProduct': RouteBreadcrumbModel(
       //title: 'Calendar',
-      title: l.S.current.addProduct,
+      title: l.S.current.addProductHomePage,
       parentRoute: 'Application',
-      childRoute: 'Add Product',
+      childRoute: 'Add Product Home Page',
     ),
-    '/editProduct': RouteBreadcrumbModel(
+    '/addProductDetails': RouteBreadcrumbModel(
       //title: 'Calendar',
-      title: l.S.current.editProduct,
+      title: l.S.current.addProductDetails,
       parentRoute: 'Application',
-      childRoute: 'Edit Product',
+      childRoute: 'Add Product Details',
     ),
+    '/addBanner': RouteBreadcrumbModel(
+      //title: 'Calendar',
+      title: l.S.current.addBanner,
+      parentRoute: 'Application',
+      childRoute: 'Add Banner',
+    ),
+
+
+
     '/chat': RouteBreadcrumbModel(
       //title: 'Chat',
       title: l.S.current.chat,
@@ -265,18 +274,31 @@ Map<String, RouteBreadcrumbModel> get routerParam {
       parentRoute: 'Application / Users',
       childRoute: 'User Profile',
     ),
-    '/tables/added-product': RouteBreadcrumbModel(
+    '/tables/jewellery-banner': RouteBreadcrumbModel(
       //title: 'Basic Table',
-      title: l.S.current.addedProduct,
+      title: l.S.current.jewelleryBanner,
       parentRoute: 'Tables & Forms',
-      childRoute: 'Added Product',
+      childRoute: 'Jewellery Banner',
     ),
-    // '/tables/edit-product': RouteBreadcrumbModel(
-    //   //title: 'Basic Table',
-    //   title: l.S.current.editProduct,
-    //   parentRoute: 'Tables & Forms',
-    //   childRoute: 'Edit Product',
-    // ),
+
+    '/tables/edit-product-details': RouteBreadcrumbModel(
+      title: l.S.current.editProductDetails, // Add this key to your localization file
+      parentRoute: 'Tables & Forms',
+      childRoute: 'Edit Product Details',
+    ),
+    '/tables/jewellery-homepage': RouteBreadcrumbModel(
+      //title: 'Basic Table',
+      title: l.S.current.jewelleryHomePage,
+      parentRoute: 'Tables & Forms',
+      childRoute: 'Jewellery Home Page',
+    ),
+    '/tables/jewellery-details': RouteBreadcrumbModel(
+      //title: 'Basic Table',
+      title: l.S.current.jewelleryDetails,
+      parentRoute: 'Tables & Forms',
+      childRoute: 'Jewellery Details',
+    ),
+
     '/tables/data-table': RouteBreadcrumbModel(
       //title: 'Data Table',
       title: l.S.current.dataTable,

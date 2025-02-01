@@ -246,22 +246,22 @@ class ECommerceAdminDashboardView extends StatelessWidget {
                   child: ResponsiveGridRow(
                     children: [
                       // Sales Overview
-                      ResponsiveGridCol(
-                        lg: 12,
-                        md: _mqSize.width < 768 ? 12 : 6,
-                        child: ShadowContainer(
-                          margin: EdgeInsetsDirectional.all(_padding / 2.5),
-                          // headerText: 'Sales Overview',
-                          headerText: _lang.salesOverview,
-                          trailing: const FilterDropdownButton(),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints.loose(
-                              const Size.fromHeight(390),
-                            ),
-                            child: const comp.SalesOverviewChart(),
-                          ),
-                        ),
-                      ),
+                      // ResponsiveGridCol(
+                      //   lg: 12,
+                      //   md: _mqSize.width < 768 ? 12 : 6,
+                      //   child: ShadowContainer(
+                      //     margin: EdgeInsetsDirectional.all(_padding / 2.5),
+                      //     // headerText: 'Sales Overview',
+                      //     headerText: _lang.salesOverview,
+                      //     trailing: const FilterDropdownButton(),
+                      //     child: ConstrainedBox(
+                      //       constraints: BoxConstraints.loose(
+                      //         const Size.fromHeight(390),
+                      //       ),
+                      //       child: const comp.SalesOverviewChart(),
+                      //     ),
+                      //   ),
+                      // ),
 
                       // Top Brands
                       ResponsiveGridCol(
