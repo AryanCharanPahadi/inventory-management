@@ -35,7 +35,7 @@ class ApiService {
   }
 
   // Fetch banner images
-  static Future<List<User>> fetchJewellaryBannerImages() async {
+  static Future<List<UserBanner>> fetchJewellaryBannerImages() async {
     const apiUrl = '$_baseUrl/get_jewellary_banner.php';
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -45,7 +45,7 @@ class ApiService {
         if (jsonResponse['status'] == 'success') {
           final List<dynamic> data = jsonResponse['data'];
           return data.map((item) {
-            return User(
+            return UserBanner(
               isSelected: false,
               id: int.parse(
                   item['id'].toString()), // Ensure id is parsed as int
@@ -349,12 +349,171 @@ class ApiService {
       return false;
     }
   }
+
   static Future<void> deleteProduct(BuildContext context, int id) async {
     try {
       final response = await http.post(
         Uri.parse('$_baseUrl/delete_product_details.php'),
         headers: <String, String>{
-          'Content-Type': 'application/x-www-form-urlencoded', // Use form-urlencoded
+          'Content-Type':
+              'application/x-www-form-urlencoded', // Use form-urlencoded
+        },
+        body: {
+          'id': id.toString(), // Send the ID as a POST parameter
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Product deleted successfully
+        final responseData = jsonDecode(response.body);
+        showSnackBar(context, responseData['message'], Colors.green);
+        print("Product deleted successfully");
+        print("Response: ${response.body}");
+      } else {
+        // Handle errors
+        final responseData = jsonDecode(response.body);
+        showSnackBar(context, responseData['message'], Colors.red);
+        print("Failed to delete product. Error: ${response.body}");
+      }
+    } catch (e) {
+      // Handle exceptions
+      showSnackBar(context, "An error occurred: $e", Colors.red);
+      print("Exception occurred: $e");
+    }
+  }
+
+  static Future<bool> updateJewelleryHomePage({
+    required int id,
+    required String itemTitle,
+    required List<Uint8List> itemImages,
+    required BuildContext context,
+  }) async {
+    try {
+      final uri = Uri.parse('$_baseUrl/edit_jewelery_homePage.php');
+      final request = http.MultipartRequest('POST', uri);
+
+      // Add fields
+      request.fields['id'] = id.toString();
+      request.fields['item_title'] = itemTitle;
+
+      // Add images
+      for (int i = 0; i < itemImages.length; i++) {
+        request.files.add(http.MultipartFile.fromBytes(
+          'jewellary_home_img[]',
+          itemImages[i],
+          filename: 'image_$i.jpg',
+          contentType: MediaType('image', 'jpeg'),
+        ));
+      }
+
+      final response = await request.send();
+      final responseData = await response.stream.bytesToString();
+      final jsonResponse = json.decode(responseData);
+
+      if (context.mounted) {
+        showSnackBar(
+          context,
+          jsonResponse['message'] ?? 'Unexpected response from the server.',
+          response.statusCode == 201 ? Colors.green : Colors.red,
+        );
+      }
+
+      return response.statusCode == 201;
+    } catch (e) {
+      print('Error updating jewellery details: $e');
+      if (context.mounted) {
+        showSnackBar(context, 'An error occurred: $e', Colors.red);
+      }
+      return false;
+    }
+  }
+
+  static Future<void> deleteProductHomePage(
+      BuildContext context, int id) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/delete_jewellery_homePage.php'),
+        headers: <String, String>{
+          'Content-Type':
+              'application/x-www-form-urlencoded', // Use form-urlencoded
+        },
+        body: {
+          'id': id.toString(), // Send the ID as a POST parameter
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Product deleted successfully
+        final responseData = jsonDecode(response.body);
+        showSnackBar(context, responseData['message'], Colors.green);
+        print("Product deleted successfully");
+        print("Response: ${response.body}");
+      } else {
+        // Handle errors
+        final responseData = jsonDecode(response.body);
+        showSnackBar(context, responseData['message'], Colors.red);
+        print("Failed to delete product. Error: ${response.body}");
+      }
+    } catch (e) {
+      // Handle exceptions
+      showSnackBar(context, "An error occurred: $e", Colors.red);
+      print("Exception occurred: $e");
+    }
+  }
+
+  static Future<bool> updateJewelleryBanner({
+    required int id,
+    required String itemTitle,
+    required List<Uint8List> itemImages,
+    required BuildContext context,
+  }) async {
+    try {
+      final uri = Uri.parse('$_baseUrl/edit_jewellery_banner.php');
+      final request = http.MultipartRequest('POST', uri);
+
+      // Add fields
+      request.fields['id'] = id.toString();
+      request.fields['item_title'] = itemTitle;
+
+      // Add images
+      for (int i = 0; i < itemImages.length; i++) {
+        request.files.add(http.MultipartFile.fromBytes(
+          'jewellary_banner[]',
+          itemImages[i],
+          filename: 'image_$i.jpg',
+          contentType: MediaType('image', 'jpeg'),
+        ));
+      }
+
+      final response = await request.send();
+      final responseData = await response.stream.bytesToString();
+      final jsonResponse = json.decode(responseData);
+
+      if (context.mounted) {
+        showSnackBar(
+          context,
+          jsonResponse['message'] ?? 'Unexpected response from the server.',
+          response.statusCode == 201 ? Colors.green : Colors.red,
+        );
+      }
+
+      return response.statusCode == 201;
+    } catch (e) {
+      print('Error updating jewellery banner: $e');
+      if (context.mounted) {
+        showSnackBar(context, 'An error occurred: $e', Colors.red);
+      }
+      return false;
+    }
+  }
+
+  static Future<void> deleteProductBanner(BuildContext context, int id) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/delete_jewellery_banner.php'),
+        headers: <String, String>{
+          'Content-Type':
+              'application/x-www-form-urlencoded', // Use form-urlencoded
         },
         body: {
           'id': id.toString(), // Send the ID as a POST parameter

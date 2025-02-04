@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 // 🌎 Project imports:
 import '../pages/add_product/add_product_hom_page.dart';
+import '../pages/add_product/add_product_home_page_modal.dart';
 import '../pages/add_product_detail/add_product_detail_ui_page.dart';
 import '../pages/edit_product_details/edit_product_details_ui.dart';
 import '../pages/pages.dart';
@@ -161,7 +162,7 @@ abstract class AcnooAppRoutes {
           GoRoute(
             path: '/addProductDetails',
             pageBuilder: (context, state) => const NoTransitionPage<void>(
-              child: AddProductDetailUiPage(),
+              child: ProductDetailsUi(),
             ),
           ),
           GoRoute(
@@ -474,7 +475,29 @@ abstract class AcnooAppRoutes {
                   // Extract the product details from the state
                   final productDetail = state.extra as UserProductDetail?;
                   return NoTransitionPage<void>(
-                    child: EditProductDetailsUi(productDetail: productDetail),
+                    child: ProductDetailsUi(productDetail: productDetail),
+                  );
+                },
+              ),
+
+              GoRoute(
+                path: 'edit-product-homePage',
+                pageBuilder: (context, state) {
+                  // Extract the product details from the state
+                  final productHomePage = state.extra as UserHomePage?;
+                  return NoTransitionPage<void>(
+                    child: AddProductHomPage(productHomePage: productHomePage),
+                  );
+                },
+              ),
+
+              GoRoute(
+                path: 'edit-product-Banner',
+                pageBuilder: (context, state) {
+                  // Extract the product details from the state
+                  final userBanner = state.extra as UserBanner?;
+                  return NoTransitionPage<void>(
+                    child: AddBanner(productBanner: userBanner),
                   );
                 },
               ),

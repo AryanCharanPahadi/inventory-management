@@ -1,8 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_grid/responsive_grid.dart';
+import '../../../component/elevated_button.dart';
 import '../../../generated/l10n.dart' as l;
 import '../../core/theme/_app_colors.dart';
 import '../../widgets/avatars/_avatar_widget.dart';
@@ -21,7 +23,7 @@ class _JewelleryBannerTableState extends State<JewelleryBannerTable> {
   List<String> _bannerImages = [];
   bool _isLoading = true;
   bool _selectAll = false;
-  List<User> _users = [];
+  List<UserBanner> _users = [];
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -45,8 +47,6 @@ class _JewelleryBannerTableState extends State<JewelleryBannerTable> {
     }
   }
 
-
-
   void _selectAllRows(bool select) {
     setState(() {
       _selectAll = select;
@@ -54,6 +54,14 @@ class _JewelleryBannerTableState extends State<JewelleryBannerTable> {
         user.isSelected = select;
       }
     });
+  }
+
+  void _editUserProduct(UserBanner userBanner) {
+    // Navigate to the edit route and pass the product details
+    context.go(
+      '/tables/edit-product-Banner',
+      extra: userBanner, // Pass the product details as an extra
+    );
   }
 
   // Function to show image in full size
@@ -142,7 +150,6 @@ class _JewelleryBannerTableState extends State<JewelleryBannerTable> {
                     dataTextStyle: textTheme.bodySmall,
                     horizontalMargin: 16.0,
                     dataRowMaxHeight: 100,
-
                     headingRowColor: WidgetStateProperty.all(
                       theme.colorScheme.surface,
                     ),
@@ -163,6 +170,8 @@ class _JewelleryBannerTableState extends State<JewelleryBannerTable> {
                       ),
                       DataColumn(label: Text(lang.name)),
                       DataColumn(label: Text(lang.img)),
+                      DataColumn(label: Text(lang.edit)),
+                      DataColumn(label: Text(lang.delete)),
                     ],
                     rows: _users.map(
                       (user) {
@@ -197,25 +206,59 @@ class _JewelleryBannerTableState extends State<JewelleryBannerTable> {
                               ),
                             ),
                             DataCell(
-                              Wrap(
-                                spacing: 8.0, // Horizontal space between images
-                                runSpacing: 8.0, // Vertical space between images
-                                children: user.images.map((imageUrl) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      _showFullSizeImage(context, imageUrl);
-                                    },
-                                    child: Image.network(
-                                      imageUrl,
-                                      width: 100, // Adjust as needed
-                                      height: 100, // Adjust as needed
-                                      fit: BoxFit.cover,
-                                    ),
-                                  );
-                                }).toList(),
+                              Container(
+                                width: 150,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: theme.colorScheme.outline),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: user.images.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          _showFullSizeImage(
+                                              context, user.images[index]);
+                                        },
+                                        child: Image.network(
+                                          user.images[index],
+                                          width: 100,
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return const Icon(Icons.error);
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-
+                            DataCell(
+                              CustomButton(
+                                label: "Edit",
+                                onPressed: () {
+                                  _editUserProduct(user);
+                                },
+                              ),
+                            ),
+                            DataCell(
+                              CustomButton(
+                                label: "Delete",
+                                onPressed: () async {
+                                  await ApiService.deleteProductBanner(
+                                      context, user.id);
+                                  await _fetchBannerImages();
+                                },
+                              ),
+                            ),
                           ],
                         );
                       },
@@ -231,13 +274,13 @@ class _JewelleryBannerTableState extends State<JewelleryBannerTable> {
   }
 }
 
-class User {
+class UserBanner {
   bool isSelected;
   final int id; // Ensure id is of type int
   final String name;
   final List<String> images;
 
-  User({
+  UserBanner({
     required this.isSelected,
     required this.id,
     required this.name,

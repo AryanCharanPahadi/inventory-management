@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:responsive_grid/responsive_grid.dart';
 import '../../../component/elevated_button.dart';
 import '../../../generated/l10n.dart' as l;
-
 import '../../widgets/shadow_container/_shadow_container.dart';
 import '../api_service/api_service.dart';
 import '../edit_product_details/edit_product_details_ui.dart';
@@ -22,23 +20,35 @@ class _JewelleryDetailsTableState extends State<JewelleryDetailsTable> {
   bool _selectAll = false;
   List<UserProductDetail> _users = [];
   final ScrollController _scrollController = ScrollController();
+  bool _isSearchVisible = false;
+  final TextEditingController _searchController = TextEditingController();
+
+  List<UserProductDetail> _filteredUsers = [];
+  bool _isRefreshing = false; // Add this line
 
   @override
   void initState() {
     super.initState();
-    _fetchProductDetails();
+    _fetchHomePage();
   }
 
-  Future<void> _fetchProductDetails() async {
+  Future<void> _fetchHomePage() async {
+    setState(() {
+      _isRefreshing = true; // Set refreshing to true
+    });
     try {
       final users = await ApiService.fetchJewellaryDetails();
       setState(() {
         _users = users;
+        _filteredUsers = users;
         _isLoading = false;
+        _isRefreshing = false; // Set refreshing to false after data is fetched
       });
+      // print('Fetched product details length: ${users.length}'); // Print the length of the fetched data
     } catch (e) {
       setState(() {
         _isLoading = false;
+        _isRefreshing = false; // Set refreshing to false in case of error
       });
       print('Error: $e');
     }
@@ -81,6 +91,31 @@ class _JewelleryDetailsTableState extends State<JewelleryDetailsTable> {
     );
   }
 
+  void _toggleSearch() {
+    setState(() {
+      _isSearchVisible = !_isSearchVisible;
+      if (!_isSearchVisible) {
+        _searchController.clear();
+        _filteredUsers = _users;
+      }
+    });
+  }
+
+  void _filterUsers(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredUsers = _users; // Reset to full list when query is empty
+      } else {
+        _filteredUsers = _users
+            .where((user) =>
+                user.name.toLowerCase().contains(query.toLowerCase()) ||
+                user.title.toLowerCase().contains(query.toLowerCase()) ||
+                user.price.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -119,6 +154,35 @@ class _JewelleryDetailsTableState extends State<JewelleryDetailsTable> {
           bottom: _padding * 2,
         ),
         headerText: lang.tableHead,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_isSearchVisible)
+              SizedBox(
+                width: 200,
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search...',
+                    border: InputBorder.none,
+                  ),
+                  onChanged: _filterUsers,
+                ),
+              ),
+            IconButton(
+              onPressed: _toggleSearch,
+              icon: const Icon(Icons.search),
+            ),
+            IconButton(
+              onPressed: () {
+                _fetchHomePage();
+              },
+              icon: _isRefreshing
+                  ? const CircularProgressIndicator() // Show circular loader when refreshing
+                  : const Icon(Icons.refresh),
+            ),
+          ],
+        ),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             return SingleChildScrollView(
@@ -168,13 +232,11 @@ class _JewelleryDetailsTableState extends State<JewelleryDetailsTable> {
                       DataColumn(label: Text(lang.title)),
                       DataColumn(label: Text(lang.name)),
                       DataColumn(label: Text(lang.price)),
-                      // DataColumn(label: Text(lang.description)),
-                      // DataColumn(label: Text(lang.size)),
                       DataColumn(label: Text(lang.img)),
                       DataColumn(label: Text(lang.edit)),
                       DataColumn(label: Text(lang.delete)),
                     ],
-                    rows: _users.map(
+                    rows: _filteredUsers.map(
                       (user) {
                         return DataRow(
                           selected: user.isSelected,
@@ -187,13 +249,13 @@ class _JewelleryDetailsTableState extends State<JewelleryDetailsTable> {
                                     onChanged: (selected) {
                                       setState(() {
                                         user.isSelected = selected ?? false;
-                                        _selectAll =
-                                            _users.every((u) => u.isSelected);
+                                        _selectAll = _filteredUsers
+                                            .every((u) => u.isSelected);
                                       });
                                     },
                                   ),
                                   const SizedBox(width: 12.0),
-                                  Text(
+                                  SelectableText(
                                     user.id.toString(),
                                     style: textTheme.bodyMedium,
                                   )
@@ -201,41 +263,30 @@ class _JewelleryDetailsTableState extends State<JewelleryDetailsTable> {
                               ),
                             ),
                             DataCell(
-                              Text(
+                              SelectableText(
                                 user.title,
                                 style: textTheme.bodyMedium,
                               ),
                             ),
                             DataCell(
-                              Text(
+                              SelectableText(
                                 user.name,
                                 style: textTheme.bodyMedium,
                               ),
                             ),
                             DataCell(
-                              Text(
+                              SelectableText(
                                 user.price,
                                 style: textTheme.bodyMedium,
                               ),
                             ),
-                            // DataCell(
-                            //   Text(
-                            //     user.size,
-                            //     style: textTheme.bodyMedium,
-                            //   ),
-                            // ),
-                            // DataCell(
-                            //   Text(
-                            //     user.desc,
-                            //     style: textTheme.bodyMedium,
-                            //   ),
-                            // ),
                             DataCell(
                               Container(
-                                width: 150, // Fixed width for the container
-                                height: 100, // Fixed height for the container
+                                width: 150,
+                                height: 100,
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: theme.colorScheme.outline),
+                                  border: Border.all(
+                                      color: theme.colorScheme.outline),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: ListView.builder(
@@ -246,15 +297,17 @@ class _JewelleryDetailsTableState extends State<JewelleryDetailsTable> {
                                       padding: const EdgeInsets.all(4.0),
                                       child: GestureDetector(
                                         onTap: () {
-                                          _showFullSizeImage(context, user.images[index]);
+                                          _showFullSizeImage(
+                                              context, user.images[index]);
                                         },
                                         child: Image.network(
                                           user.images[index],
-                                          width: 100, // Fixed width for each image
-                                          height: 100, // Fixed height for each image
+                                          width: 100,
+                                          height: 100,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) {
-                                            return const Icon(Icons.error); // Show an error icon if the image fails to load
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return const Icon(Icons.error);
                                           },
                                         ),
                                       ),
@@ -275,7 +328,9 @@ class _JewelleryDetailsTableState extends State<JewelleryDetailsTable> {
                               CustomButton(
                                 label: "Delete",
                                 onPressed: () async {
-                                  await ApiService.deleteProduct(context,user.id);
+                                  await ApiService.deleteProduct(
+                                      context, user.id);
+                                  await _fetchHomePage();
                                 },
                               ),
                             ),
@@ -302,7 +357,7 @@ class UserProductDetail {
   final String price;
   final String size;
   final String desc;
-  final List<String> images; // List of image URLs
+  final List<String> images;
 
   UserProductDetail({
     required this.isSelected,
@@ -312,6 +367,6 @@ class UserProductDetail {
     required this.price,
     required this.size,
     required this.desc,
-    required this.images, // Initialize with a list of URLs
+    required this.images,
   });
 }

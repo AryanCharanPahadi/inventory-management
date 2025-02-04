@@ -8,17 +8,23 @@ import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:file_picker/file_picker.dart';
 
-import 'add_product_detail_controller.dart'; // Import for web image selection
+import '../tables_page/jewellery_details_table.dart';
+import 'add_product_detail_controller.dart';
 
-class AddProductDetailUiPage extends StatefulWidget {
-  const AddProductDetailUiPage({super.key});
+class ProductDetailsUi extends StatefulWidget {
+  final UserProductDetail? productDetail;
+
+  const ProductDetailsUi({
+    super.key,
+    this.productDetail,
+  });
 
   @override
-  State<AddProductDetailUiPage> createState() => _AddProductDetailUiPageState();
+  State<ProductDetailsUi> createState() => _ProductDetailsUiState();
 }
 
-class _AddProductDetailUiPageState extends State<AddProductDetailUiPage> {
-  final List<Uint8List> _selectedImages = []; // Works for both mobile & web
+class _ProductDetailsUiState extends State<ProductDetailsUi> {
+  final List<Uint8List> _selectedImages = [];
   ProductDetailController productDetailController =
       Get.put(ProductDetailController());
 
@@ -26,18 +32,59 @@ class _AddProductDetailUiPageState extends State<AddProductDetailUiPage> {
   void initState() {
     super.initState();
     _fetchJewelryCategories();
+
+    // Pre-fill fields if editing an existing product
+    if (widget.productDetail != null) {
+      productDetailController.itemNameController.text =
+          widget.productDetail!.name;
+      productDetailController.itemPriceController.text =
+          widget.productDetail!.price;
+      productDetailController.itemDescController.text =
+          widget.productDetail!.desc;
+      productDetailController.selectedCategory = widget.productDetail!.title;
+
+      // Parse and format the size field
+      if (widget.productDetail!.size != null) {
+        try {
+          Map<String, dynamic> sizeMap =
+              jsonDecode(widget.productDetail!.size!);
+          String formattedSize = sizeMap.entries
+              .map((entry) => '${entry.key}:${entry.value}')
+              .join(',');
+          productDetailController.itemSpecificationController.text =
+              formattedSize;
+        } catch (e) {
+          if (kDebugMode) {
+            print("Error parsing size JSON: $e");
+          }
+          productDetailController.itemSpecificationController.text =
+              widget.productDetail!.size!;
+        }
+      }
+    }
   }
+
+
+  @override
+  void dispose() {
+    // Clear all fields and reset the state when the widget is disposed
+    productDetailController.clearFormFields();
+    _selectedImages.clear();
+    productDetailController.selectedCategory = null;
+    super.dispose();
+  }
+
 
   Future<void> _pickImages() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
-      allowMultiple: true, // Allow multiple selection
+      allowMultiple: true,
     );
 
     if (result != null) {
       setState(() {
-        _selectedImages.addAll(
-            result.files.map((file) => file.bytes!).toList()); // Add new images
+        _selectedImages
+            .addAll(result.files.map((file) => file.bytes!).toList());
       });
     }
   }
@@ -196,52 +243,72 @@ class _AddProductDetailUiPageState extends State<AddProductDetailUiPage> {
                       productDetailController.itemPriceController.text;
                   final itemDesc =
                       productDetailController.itemDescController.text;
-
-                  // Parse the itemSpecification input into a key-value map
                   final itemSpecificationInput =
                       productDetailController.itemSpecificationController.text;
                   final itemSpecificationMap =
                       _parseSpecification(itemSpecificationInput);
-
-                  // Convert the map into a JSON string
                   final itemSpecificationJson =
                       json.encode(itemSpecificationMap);
 
-                  try {
-                    final success = await ApiService.addProductDetail(
-                      context,
-                      itemTitle!,
-                      itemName,
-                      itemPrice,
-                      itemDesc,
-                      itemSpecificationJson, // Send JSON formatted specification
-                      _selectedImages,
+                  if (widget.productDetail != null) {
+                    // Update existing product
+                    final id = widget.productDetail!.id;
+                    if (id == null) {
+                      print('Error: Product ID is missing. Cannot update.');
+                      return;
+                    }
+
+                    final success = await ApiService.updateJewelleryDetails(
+                      id: id,
+                      itemTitle: itemTitle!,
+                      itemName: itemName,
+                      itemPrice: itemPrice,
+                      itemDesc: itemDesc,
+                      itemSize: itemSpecificationJson,
+                      itemImages: _selectedImages,
+                      context: context,
                     );
 
                     if (success) {
-                      if (kDebugMode) {
-                        print("Product added successfully!");
-                      }
-                      productDetailController
-                          .clearFormFields(); // Clear fields after success
+                      print('Success: Product details updated successfully!');
+                      productDetailController.clearFormFields();
                       setState(() {
-                        _selectedImages.clear(); // Clear images list as well
-                        productDetailController.selectedCategory =
-                            null; // Update the UI to reset the dropdown
+                        _selectedImages.clear();
+                        productDetailController.selectedCategory = null;
                       });
                     } else {
-                      if (kDebugMode) {
+                      print('Error: Failed to update product details.');
+                    }
+                  } else {
+                    // Add new product
+                    try {
+                      final success = await ApiService.addProductDetail(
+                        context,
+                        itemTitle!,
+                        itemName,
+                        itemPrice,
+                        itemDesc,
+                        itemSpecificationJson,
+                        _selectedImages,
+                      );
+
+                      if (success) {
+                        print("Product added successfully!");
+                        productDetailController.clearFormFields();
+                        setState(() {
+                          _selectedImages.clear();
+                          productDetailController.selectedCategory = null;
+                        });
+                      } else {
                         print("Failed to add product");
                       }
-                    }
-                  } catch (e) {
-                    if (kDebugMode) {
+                    } catch (e) {
                       print("Error adding product: $e");
                     }
                   }
                 }
               },
-              child: const Text("Submit"),
+              child: Text(widget.productDetail != null ? "Update" : "Submit"),
             )
           ],
         ),
@@ -251,12 +318,9 @@ class _AddProductDetailUiPageState extends State<AddProductDetailUiPage> {
 
   Map<String, String> _parseSpecification(String input) {
     final Map<String, String> parsedMap = {};
-
-    // Split the input string by commas
     final entries = input.split(',');
 
     for (var entry in entries) {
-      // Split each entry by the colon
       final parts = entry.split(':');
       if (parts.length == 2) {
         final key = parts[0].trim();

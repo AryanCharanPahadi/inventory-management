@@ -6525,6 +6525,23 @@ class S {
     );
   }
 
+  String get editProductHomePage {
+    return Intl.message(
+      'Edit Product Home Page',
+      name: 'editProductHomePage',
+      desc: '',
+      args: [],
+    );
+  }
+  String get editProductBanner {
+    return Intl.message(
+      'Edit Product Banner',
+      name: 'editProductBanner',
+      desc: '',
+      args: [],
+    );
+  }
+
 
 
 

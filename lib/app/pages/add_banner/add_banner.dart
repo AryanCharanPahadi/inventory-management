@@ -8,10 +8,13 @@ import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:file_picker/file_picker.dart';
 
+import '../tables_page/jewellery_banner_table.dart';
 import 'add_banner_controller.dart';
 
 class AddBanner extends StatefulWidget {
-  const AddBanner({super.key});
+  final UserBanner? productBanner;
+
+  const AddBanner({super.key, this.productBanner});
 
   @override
   State<AddBanner> createState() => _AddBannerState();
@@ -24,6 +27,20 @@ class _AddBannerState extends State<AddBanner> {
   @override
   void initState() {
     super.initState();
+
+    // Pre-fill fields if editing an existing product
+    if (widget.productBanner != null) {
+      addBannerController.itemTitleController.text = widget.productBanner!.name;
+    }
+  }
+
+  @override
+  void dispose() {
+    // Clear all fields and reset the state when the widget is disposed
+    addBannerController.clearFormFields();
+    _selectedImages.clear();
+
+    super.dispose();
   }
 
   Future<void> _pickImages() async {
@@ -143,14 +160,37 @@ class _AddBannerState extends State<AddBanner> {
                       print("Error adding product: $e");
                     }
                   }
+                } else {
+                  final itemName = addBannerController.itemTitleController.text;
+
+                  if (widget.productBanner != null) {
+                    // Update existing product
+                    final id = widget.productBanner!.id;
+
+                    final success = await ApiService.updateJewelleryHomePage(
+                      id: id,
+                      itemTitle: itemName,
+                      itemImages: _selectedImages,
+                      context: context,
+                    );
+
+                    if (success) {
+                      print('Success: Product details updated successfully!');
+                      addBannerController.clearFormFields();
+                      setState(() {
+                        _selectedImages.clear();
+                      });
+                    } else {
+                      print('Error: Failed to update product details.');
+                    }
+                  }
                 }
               },
-              child: const Text("Submit"),
+              child: Text(widget.productBanner != null ? "Update" : "Submit"),
             )
           ],
         ),
       ),
     );
   }
-
 }

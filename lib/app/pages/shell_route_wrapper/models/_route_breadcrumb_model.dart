@@ -286,11 +286,25 @@ Map<String, RouteBreadcrumbModel> get routerParam {
       parentRoute: 'Tables & Forms',
       childRoute: 'Edit Product Details',
     ),
+
+
     '/tables/jewellery-homepage': RouteBreadcrumbModel(
       //title: 'Basic Table',
       title: l.S.current.jewelleryHomePage,
       parentRoute: 'Tables & Forms',
       childRoute: 'Jewellery Home Page',
+    ),
+
+    '/tables/edit-product-homePage': RouteBreadcrumbModel(
+      title: l.S.current.editProductHomePage, // Add this key to your localization file
+      parentRoute: 'Tables & Forms',
+      childRoute: 'Edit Product Home Page',
+    ),
+
+    '/tables/edit-product-Banner': RouteBreadcrumbModel(
+      title: l.S.current.editProductBanner, // Add this key to your localization file
+      parentRoute: 'Tables & Forms',
+      childRoute: 'Edit Product Banner',
     ),
     '/tables/jewellery-details': RouteBreadcrumbModel(
       //title: 'Basic Table',

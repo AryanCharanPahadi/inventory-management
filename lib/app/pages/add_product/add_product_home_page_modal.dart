@@ -6,6 +6,7 @@ AddProductHomePageModal addProductHomePageModalFromJson(String str) =>
 String addProductHomePageModalToJson(AddProductHomePageModal data) => json.encode(data.toJson());
 
 class AddProductHomePageModal {
+  final int id;
 
   final  String  itemTitle;
 
@@ -13,6 +14,7 @@ class AddProductHomePageModal {
 
 
   AddProductHomePageModal({
+    required this.id,
     required  this.itemTitle,
 
     this.itemImg,
@@ -21,6 +23,8 @@ class AddProductHomePageModal {
 
   factory AddProductHomePageModal.fromJson(Map<String, dynamic> json) => AddProductHomePageModal(
     itemTitle: json["item_title"],
+    id: json["id"],
+
 
     itemImg: json["item_img"],
 
@@ -28,6 +32,7 @@ class AddProductHomePageModal {
 
   Map<String, dynamic> toJson() => {
     "item_title": itemTitle,
+    "id": id,
 
     "item_img": itemImg,
 

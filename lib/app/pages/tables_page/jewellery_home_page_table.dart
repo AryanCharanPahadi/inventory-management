@@ -1,4 +1,6 @@
+import 'package:acnoo_flutter_admin_panel/component/elevated_button.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 import '../../../generated/l10n.dart' as l;
 import '../../widgets/shadow_container/_shadow_container.dart';
@@ -56,6 +58,14 @@ class _JewelleryHomePageTableState extends State<JewelleryHomePageTable> {
         user.isSelected = select;
       }
     });
+  }
+
+  void _editUserProduct(UserHomePage userHomePage) {
+    // Navigate to the edit route and pass the product details
+    context.go(
+      '/tables/edit-product-homePage',
+      extra: userHomePage, // Pass the product details as an extra
+    );
   }
 
   void _showFullSizeImage(BuildContext context, String imageUrl) {
@@ -121,11 +131,11 @@ class _JewelleryHomePageTableState extends State<JewelleryHomePageTable> {
   }
 
   ResponsiveGridCol tableHead(
-      double _padding,
-      BuildContext context,
-      ThemeData theme,
-      TextTheme textTheme,
-      ) {
+    double _padding,
+    BuildContext context,
+    ThemeData theme,
+    TextTheme textTheme,
+  ) {
     final lang = l.S.of(context);
     return ResponsiveGridCol(
       child: ShadowContainer(
@@ -211,83 +221,105 @@ class _JewelleryHomePageTableState extends State<JewelleryHomePageTable> {
                       ),
                       DataColumn(label: Text(lang.name)),
                       DataColumn(label: Text(lang.img)),
+                      DataColumn(label: Text(lang.edit)),
+                      DataColumn(label: Text(lang.delete)),
                     ],
                     rows: _filteredUsers.isEmpty
                         ? [
-                      DataRow(
-                        cells: [
-                          DataCell(
-                            Center(
-                              child: Text(
-                                'No data available',
-                                style: textTheme.bodyMedium,
-                              ),
-                            ),
-                          ),
-                          DataCell(Container()), // Empty cell
-                          DataCell(Container()), // Empty cell
-                        ],
-                      ),
-                    ]
-                        : _filteredUsers.map(
-                          (user) {
-                        return DataRow(
-                          selected: user.isSelected,
-                          cells: [
-                            DataCell(
-                              Row(
-                                children: [
-                                  Checkbox(
-                                    value: user.isSelected,
-                                    onChanged: (selected) {
-                                      setState(() {
-                                        user.isSelected =
-                                            selected ?? false;
-                                        _selectAll = _filteredUsers
-                                            .every((u) => u.isSelected);
-                                      });
-                                    },
-                                  ),
-                                  const SizedBox(width: 12.0),
-                                  Text(
-                                    user.id.toString(),
-                                    style: textTheme.bodyMedium,
-                                  )
-                                ],
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                user.name,
-                                style: textTheme.bodyMedium,
-                              ),
-                            ),
-                            DataCell(
-                              Wrap(
-                                spacing:
-                                8.0, // Horizontal space between images
-                                runSpacing:
-                                8.0, // Vertical space between images
-                                children: user.images.map((imageUrl) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      _showFullSizeImage(
-                                          context, imageUrl);
-                                    },
-                                    child: Image.network(
-                                      imageUrl,
-                                      width: 100, // Adjust as needed
-                                      height: 100, // Adjust as needed
-                                      fit: BoxFit.cover,
+                            DataRow(
+                              cells: [
+                                DataCell(
+                                  Center(
+                                    child: Text(
+                                      'No data available',
+                                      style: textTheme.bodyMedium,
                                     ),
-                                  );
-                                }).toList(),
-                              ),
+                                  ),
+                                ),
+                                DataCell(Container()), // Empty cell
+                                DataCell(Container()), // Empty cell
+                                DataCell(Container()), // Empty cell
+                                DataCell(Container()), // Empty cell
+                              ],
                             ),
-                          ],
-                        );
-                      },
-                    ).toList(),
+                          ]
+                        : _filteredUsers.map(
+                            (user) {
+                              return DataRow(
+                                selected: user.isSelected,
+                                cells: [
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        Checkbox(
+                                          value: user.isSelected,
+                                          onChanged: (selected) {
+                                            setState(() {
+                                              user.isSelected =
+                                                  selected ?? false;
+                                              _selectAll = _filteredUsers
+                                                  .every((u) => u.isSelected);
+                                            });
+                                          },
+                                        ),
+                                        const SizedBox(width: 12.0),
+                                        Text(
+                                          user.id.toString(),
+                                          style: textTheme.bodyMedium,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      user.name,
+                                      style: textTheme.bodyMedium,
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Wrap(
+                                      spacing:
+                                          8.0, // Horizontal space between images
+                                      runSpacing:
+                                          8.0, // Vertical space between images
+                                      children: user.images.map((imageUrl) {
+                                        return GestureDetector(
+                                          onTap: () {
+                                            _showFullSizeImage(
+                                                context, imageUrl);
+                                          },
+                                          child: Image.network(
+                                            imageUrl,
+                                            width: 100, // Adjust as needed
+                                            height: 100, // Adjust as needed
+                                            fit: BoxFit.cover,
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    CustomButton(
+                                      label: "Edit",
+                                      onPressed: () {
+                                        _editUserProduct(user);
+                                      },
+                                    ),
+                                  ),
+                                  DataCell(
+                                    CustomButton(
+                                      label: "Delete",
+                                      onPressed: () async {
+                                        await ApiService.deleteProductHomePage(
+                                            context, user.id);
+                                        await _fetchHomePage();
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ).toList(),
                   ),
                 ),
               ),

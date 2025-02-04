@@ -8,11 +8,14 @@ import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:file_picker/file_picker.dart';
 
-import '../add_product_detail/add_product_detail_controller.dart';
+import '../tables_page/jewellery_home_page_table.dart';
 import 'add_product_controller.dart';
+import 'add_product_home_page_modal.dart';
 
 class AddProductHomPage extends StatefulWidget {
-  const AddProductHomPage({super.key});
+  final UserHomePage? productHomePage;
+
+  const AddProductHomPage({super.key, this.productHomePage});
 
   @override
   State<AddProductHomPage> createState() => _AddProductHomPageState();
@@ -35,6 +38,26 @@ class _AddProductHomPageState extends State<AddProductHomPage> {
             result.files.map((file) => file.bytes!).toList()); // Add new images
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Pre-fill fields if editing an existing product
+    if (widget.productHomePage != null) {
+      productHomePageController.nameController.text =
+          widget.productHomePage!.name;
+    }
+  }
+
+  @override
+  void dispose() {
+    // Clear all fields and reset the state when the widget is disposed
+    productHomePageController.clearFormFields();
+    _selectedImages.clear();
+
+    super.dispose();
   }
 
   @override
@@ -95,47 +118,61 @@ class _AddProductHomPageState extends State<AddProductHomPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
-                if (productHomePageController.formKey.currentState?.validate() ??
+                if (productHomePageController.formKey.currentState
+                        ?.validate() ??
                     false) {
-                  final itemName = productHomePageController.nameController.text;
+                  final itemName =
+                      productHomePageController.nameController.text;
 
-                  // Parse the itemSpecification input into a key-value map
+                  if (widget.productHomePage != null) {
+                    // Update existing product
+                    final id = widget.productHomePage!.id;
 
-                  try {
-                    final success = await ApiService.addHomePage(
-                      context,
-                      itemName,
-                      _selectedImages,
+                    final success = await ApiService.updateJewelleryHomePage(
+                      id: id,
+                      itemTitle: itemName,
+                      itemImages: _selectedImages,
+                      context: context,
                     );
 
                     if (success) {
-                      if (kDebugMode) {
-                        print("Product added successfully!");
-                      }
-                      productHomePageController
-                          .clearFormFields(); // Clear fields after success
+                      print('Success: Product details updated successfully!');
+                      productHomePageController.clearFormFields();
                       setState(() {
-                        _selectedImages.clear(); // Clear images list as well
-                        null; // Update the UI to reset the dropdown
+                        _selectedImages.clear();
                       });
                     } else {
-                      if (kDebugMode) {
+                      print('Error: Failed to update product details.');
+                    }
+                  } else {
+                    // Add new product
+                    try {
+                      final success = await ApiService.addHomePage(
+                        context,
+                        itemName,
+                        _selectedImages,
+                      );
+
+                      if (success) {
+                        print("Product added successfully!");
+                        productHomePageController.clearFormFields();
+                        setState(() {
+                          _selectedImages.clear();
+                        });
+                      } else {
                         print("Failed to add product");
                       }
-                    }
-                  } catch (e) {
-                    if (kDebugMode) {
+                    } catch (e) {
                       print("Error adding product: $e");
                     }
                   }
                 }
               },
-              child: const Text("Submit"),
+              child: Text(widget.productHomePage != null ? "Update" : "Submit"),
             )
           ],
         ),
       ),
     );
   }
-
 }
